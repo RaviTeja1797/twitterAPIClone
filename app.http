@@ -1,0 +1,11 @@
+//registerUserAPI POST API-1
+POST http://localhost:3000/register/
+Content-Type: application/json
+
+{
+  "username": "tejdogip33",
+  "password": "raviteja",
+  "name": "Ravi Teja",
+  "gender": "male"
+}
+###

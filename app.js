@@ -14,7 +14,7 @@ let databaseConnectionObject;
 
 const initializeDatabaseAndServer = async()=>{
     try{
-        await open({
+        databaseConnectionObject = await open({
             filename : dbPath,
             driver: sqlite3.Database
         })
@@ -22,10 +22,53 @@ const initializeDatabaseAndServer = async()=>{
             console.log('Database connection object received and Server initiated at 3000')
         })
     }catch(e){
-        console.log(`Database error ${e}`)
+        console.log(`Database error ${e.message}`)
     }
 }
 
 initializeDatabaseAndServer();
 
 
+
+//registerUserAPI API-1
+expressAppInstance.post("/register/", async(request, response)=>{
+    const{username, password, name, gender} = request.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    let userObject;
+
+    const getUserQuery = `SELECT * FROM user WHERE username like "${username}"`;
+
+    try{
+        userObject = await databaseConnectionObject.get(getUserQuery);
+    }catch(e){
+        console.log(`Datebase error ${e.message}`)
+    }
+
+    if(userObject){
+        //user already exists throw error
+        response.status(400)
+        response.send('User already exists')
+        
+    }else{
+        //verify password and proceed to create an account
+        if (password.length > 6){
+            //proceed! Create a twitter account for the user
+            const registerUserQuery = `INSERT INTO user(username, password, name, gender)
+            VALUES("${username}", "${passwordHash}", "${name}", "${gender}");`;
+
+            try{
+                await databaseConnectionObject.run(registerUserQuery);
+                response.send('User created successfully');
+            }catch(e){
+                console.log(`Database Error ${e.message}`);
+            }
+
+        }else{
+            //Reject! Password Too short!
+            response.status(400);
+            response.send('Password is too short');
+        }
+    }
+
+})
