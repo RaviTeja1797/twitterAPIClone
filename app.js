@@ -28,7 +28,35 @@ const initializeDatabaseAndServer = async()=>{
 
 initializeDatabaseAndServer();
 
+const authenticateUser = (request, response, next) =>{
+    console.log('Authenticate user')
+    const authHeader = request.headers.authorization
+    //console.log(request.headers)
+    let jwtToken;
 
+    if (authHeader!==undefined){
+        jwtToken = authHeader.split(" ")[1];
+    }
+    if(jwtToken === undefined){ //if jwtToken is undefined, it means that authHeader is not provided on the request headers
+        response.status(401);
+        response.send('Invalid JWT Token')
+    }else{
+        //Received authorization header. Verify token and proceed to the path handler function
+        jwt.verify(jwtToken, "The_Twitter", (error, payload)=>{
+            if(error){
+                //console.log(`Error ${error}`)
+                response.status(401)
+                response.send('Invalid JWT Token')
+            }else{
+                //console.log(payload.username)
+                request.username = payload.username; //Upon successful jwt verification, adding username to the request object.
+                //console.log(request);
+                next() //Allowing the handler function
+            }
+        }
+        )}
+
+}
 
 //registerUserAPI | API-1 | POST
 expressAppInstance.post("/register/", async(request, response)=>{
@@ -113,4 +141,30 @@ expressAppInstance.post("/login/", async(request, response)=>{
         response.send('Invalid user')
     }
 
+})
+
+//test api for middleware function
+expressAppInstance.get("/test-middleWare/", authenticateUser, (request, response)=>{
+    console.log("test api block")
+})
+
+
+//getLatestTweetsOfFollowingUsersAPI | API-3 | get
+expressAppInstance.get('/user/tweets/feed/', authenticateUser, async(request, response)=>{
+  
+  let {username}  = request;
+  console.log(username)
+  const getLatestTweetsQuery = `SELECT username, tweet, date_time as dateTime FROM
+  user NATURAL JOIN tweet WHERE tweet.user_id IN(
+      SELECT follower.following_user_id FROM follower INNER JOIN user ON follower.follower_user_id = user.user_id WHERE user.username LIKE "${username}"
+  ) ORDER BY tweet.date_time DESC
+  LIMIT 4`
+  ;
+
+  try{
+    let tweetObjects = await databaseConnectionObject.all(getLatestTweetsQuery)
+    response.send(tweetObjects)
+  }catch(e){
+    console.log(`Error message ${e}`)
+  }
 })
