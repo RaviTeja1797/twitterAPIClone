@@ -30,7 +30,7 @@ initializeDatabaseAndServer();
 
 
 
-//registerUserAPI API-1
+//registerUserAPI | API-1 | POST
 expressAppInstance.post("/register/", async(request, response)=>{
     const{username, password, name, gender} = request.body;
     const passwordHash = await bcrypt.hash(password, 10);
@@ -69,6 +69,48 @@ expressAppInstance.post("/register/", async(request, response)=>{
             response.status(400);
             response.send('Password is too short');
         }
+    }
+
+})
+
+//loginUserAPI | API-2 | POST 
+
+expressAppInstance.post("/login/", async(request, response)=>{
+    const{username, password} = request.body;
+    
+    let userObject;
+    const getUserQuery = `SELECT * FROM user WHERE username like "${username}"`;
+
+    try{
+        userObject = await databaseConnectionObject.get(getUserQuery);
+    }catch(e){
+        console.log(`Datebase error ${e.message}`)
+    }
+
+    if(userObject){
+        //user exists check password
+        const isPasswordValid = await bcrypt.compare(password, userObject.password)
+        if(isPasswordValid){
+            //Password matching. Generating JWT Token and sending in response.
+
+            const payload = {
+                username : username
+            }
+
+            const jwtToken = jwt.sign(payload, "The_Twitter");
+            response.send({jwtToken})
+            console.log(jwtToken)
+
+        }else{
+            //Invalid password. Reject login request.
+            response.status(400)
+            response.send('Invalid password')
+        }
+        
+    }else{
+        //user doesn't have a twitter account reject the login request
+        response.status(400)
+        response.send('Invalid user')
     }
 
 })
