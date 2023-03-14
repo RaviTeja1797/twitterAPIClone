@@ -304,4 +304,31 @@ expressAppInstance.get("/tweets/:tweetId/replies", authenticateUser, async(reque
     }
 })
 
+//getAllMyTweetDataAPI | API-9 | GET
+expressAppInstance.get('/user/tweets/', authenticateUser, async(request, response)=>{
+    const {username} = request;
+    console.log(username)
+    let {user_id} = await databaseConnectionObject.get(`SELECT user_id FROM user WHERE user.username like "${username}"`);
+    
+    const getAllTweetsQuery = `SELECT tweet.tweet AS tweet, count(DISTINCT like.like_id) AS likes, count(DISTINCT reply.reply_id) AS replies, date_time AS dateTime FROM user INNER JOIN tweet ON user.user_id = tweet.user_id INNER JOIN like ON tweet.tweet_id = like.like_id INNER JOIN reply ON tweet.tweet_id = reply.tweet_id WHERE user.user_id = ${user_id} GROUP BY tweet.tweet_id;`;
+
+    let allTweetDetails = await databaseConnectionObject.all(getAllTweetsQuery)
+    response.send(allTweetDetails)
+})
+
+//postTweetAPI | API-10 | POST
+expressAppInstance.post("/user/tweets/", authenticateUser, async(request, response)=>{
+    const{tweet} = request.body;
+    console.log(tweet);
+    const {username} = request;
+    console.log(username)
+    const {user_id} = await databaseConnectionObject.get(`SELECT user_id FROM user WHERE user.username like "${username}"`)
+
+    const postTweetQuery = `INSERT INTO tweet (tweet, user_id)
+    VALUES ("${tweet}", ${user_id});`;
+
+    await databaseConnectionObject.run(postTweetQuery);
+    response.send(`Created a Tweet`);
+})
+
 module.exports = expressAppInstance;

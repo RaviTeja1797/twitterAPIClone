@@ -15,8 +15,8 @@ POST http://localhost:3000/login/
 Content-Type: application/json
 
 {
-  "username":"Joebiden",
-  "password":"biden@123"
+  "username":"NarendraModi",
+  "password":"modi@123"
 }
 ###
 
@@ -45,7 +45,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5hc
 ###
 
 //getTweetDetailsAPI | API-6 | GET
-GET http://localhost:3000/tweets/1
+GET http://localhost:3000/tweets/3
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvZWJpZGVuIiwiaWF0IjoxNjc4NzIzOTEyfQ.5YJgxb74uTo2rB47X8oKGFuH98NL5D9J6PNDC4o7ha4
 
@@ -58,6 +58,22 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvZ
 ###
 
 //getTweetRepliesAPI | API-8 | GET
-GET http://localhost:3000/tweets/8/replies
+GET http://localhost:3000/tweets/4/replies
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvZWJpZGVuIiwiaWF0IjoxNjc4NzIzOTEyfQ.5YJgxb74uTo2rB47X8oKGFuH98NL5D9J6PNDC4o7ha4
+###
+
+//getAllMyTweetDataAPI | API-9 | GET
+GET http://localhost:3000/user/tweets/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5hcmVuZHJhTW9kaSIsImlhdCI6MTY3ODc5MjczMn0.zn6wxyaAUW6q4Gh6GzH52-sBAMVuQns2fx5bbk4cGQ4
+###
+
+//postTweetAPI | API-10 | POST
+POST http://localhost:3000/user/tweets/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5hcmVuZHJhTW9kaSIsImlhdCI6MTY3ODc5MjczMn0.zn6wxyaAUW6q4Gh6GzH52-sBAMVuQns2fx5bbk4cGQ4
+
+{
+    "tweet":"I am glad to be the visiting the Dubai"
+}
